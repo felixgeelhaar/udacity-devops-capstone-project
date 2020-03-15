@@ -1,0 +1,15 @@
+Description: >
+  Felix Geelhaar / Udacity Project Capstone
+  This template defines the container registry
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Description: The name of the ECR Repository
+    Default: "Undefined"
+
+Resources:
+  ElasticContainerRegistry:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName

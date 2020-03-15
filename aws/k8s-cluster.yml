@@ -1,0 +1,47 @@
+Description: >
+  Felix Geelhaar / Udacity Project Capstone
+  This template defines the k8s cluster
+
+Parameters:
+  EnvironmentName:
+    Description: The name of the Cloudformation Stack
+    Type: String
+    Default: "UdacityCapStone"
+
+Resources:
+  eksServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+
+  KubernetesCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Sub "${EnvironmentName}-K8S"
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "${EnvironmentName}-SecurityGroups"
+        SubnetIds:
+          Fn::Split:
+            - ","
+            - Fn::ImportValue:
+                Fn::Sub: ${EnvironmentName}-Subnets
+      RoleArn: !GetAtt eksServiceRole.Arn
+
+Outputs:
+  K8SCluster:
+    Description: The K8S Cluster Name
+    Value: !Ref KubernetesCluster
+    Export:
+      Name: !Sub "${EnvironmentName}-K8S"
