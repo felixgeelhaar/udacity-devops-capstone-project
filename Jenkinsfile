@@ -3,7 +3,7 @@ pipeline {
   environment {
         VERSION = 'latest'
         PROJECT = 'capstone-sample-app'
-				IMAGE = "$PROJECT:$VERSION"
+				IMAGE = "$PROJECT"
 				ECRURI = "251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
 				ECRURL = "https://251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
 				ECRCRED = 'ecr:us-west-2:jenkins'
@@ -25,7 +25,6 @@ pipeline {
             VERSION = shortCommitHash
             // set the build display name
             currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
-            IMAGE = "$PROJECT:$VERSION"
         }
       }
 		}
@@ -42,7 +41,8 @@ pipeline {
         script {
           // Push the Docker image to ECR
 	    docker.withRegistry(ECRURL, ECRCRED) {
-            docker.image(IMAGE).push()
+						docker.image(IMAGE).push("latest")
+            docker.image(IMAGE).push(VERSION)
           }
 			  }
       }
@@ -50,9 +50,9 @@ pipeline {
     stage('K8S Deploy') {
       steps {
 	  withAWS(credentials: 'jenkins', region: 'us-west-2') {
-	    sh "aws eks --region us-west-2 update-kubeconfig --name UdacityCapStone-K8S"
+	    sh "aws eks --region us-west-2 update-kubeconfig --name UdacityCapStone-Cluster"
 	    sh "kubectl apply -f k8s"
-			sh "kubectl rolling-update $PROJECT $PROJECT-$VERSION --image=$ECRURI:$VERSION"
+			sh "kubectl set image deployments/$PROJECT $PROJECT=$ECRURI:$VERSION"
 	    sh "kubectl get nodes"
 	    sh "kubectl get pods"
 	  }
