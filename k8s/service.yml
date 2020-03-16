@@ -1,13 +1,14 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
-  name: capstone-sample-app-service
+  name: capstone-sample-app
   labels:
-    app: capstone-sample-app
+    name: capstone-sample-app
 spec:
   selector:
     app: capstone-sample-app
   type: LoadBalancer
   ports:
-    - port: 80
-      targetPort: "http-server"
+    - name: http
+      port: 80
+      protocol: TCP

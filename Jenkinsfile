@@ -48,17 +48,15 @@ pipeline {
 		}
     stage('K8S Deploy') {
       steps {
-	  withAWS(credentials: 'jenkins', region: 'us-west-2') {
-	    sh "aws eks --region us-west-2 update-kubeconfig --name UdacityCapStone-Cluster"
-			// Configure deployment
-	    sh "kubectl apply -f k8s/deployment.yml"
-			// Configure service for loadbalancing
-	    sh "kubectl apply -f k8s/service.yml"
-			// Set created image to do a rolling update
-			sh "kubectl set image deployments/$PROJECT $PROJECT=$ECRURI:$VERSION"
-	    sh "kubectl get nodes"
-	    sh "kubectl get pods"
-	  }
+				withAWS(credentials: 'jenkins', region: 'us-west-2') {
+					sh "aws eks --region us-west-2 update-kubeconfig --name UdacityCapStone-Cluster"
+					// Configure deployment
+					sh "kubectl apply -f k8s/deployment.yml"
+					// Configure service for loadbalancing
+					sh "kubectl apply -f k8s/service.yml"
+					// Set created image to do a rolling update
+					sh "kubectl set image deployments/$PROJECT $PROJECT=$ECRURI:$VERSION"
+				}
       }
     }
   }

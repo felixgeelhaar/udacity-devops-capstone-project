@@ -4,9 +4,8 @@ metadata:
   name: capstone-sample-app
   labels:
     app: capstone-sample-app
-  namespace: default
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: capstone-sample-app
@@ -22,10 +21,9 @@ spec:
     spec:
       containers:
         - image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
-          imagePullPolicy: Always
           name: capstone-sample-app
           ports:
             - containerPort: 80
-              protocol: TCP
+              name: http-server
       imagePullSecrets:
         - name: ecr-secret
