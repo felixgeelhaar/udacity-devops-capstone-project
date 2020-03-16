@@ -5,9 +5,9 @@ metadata:
   labels:
     app: capstone-sample-app
 spec:
-  ports:
-    - port: 80
-      targetPort: "http-server"
   selector:
     app: capstone-sample-app
   type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: "http-server"
