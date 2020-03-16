@@ -4,10 +4,8 @@ pipeline {
         VERSION = 'latest'
         PROJECT = 'capstone-sample-app'
 				IMAGE = "$PROJECT"
-				ECRURI = "251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
-				ECRURL = "https://251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
+				ECRURL = "251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
 				ECRCRED = 'ecr:us-west-2:jenkins'
-				EKSURL = "https://5E5C37AC2DCB30CD169691785476A132.gr7.us-west-2.eks.amazonaws.com"
   }
 	stages {
 		stage("Lint Dockerfile") {
