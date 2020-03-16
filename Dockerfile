@@ -1,1 +1,1 @@
-FROM nginxdemos/hello
+FROM nginxdemos/hello:latest
