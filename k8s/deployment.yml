@@ -2,10 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: capstone-sample-app
+  labels:
+    app: capstone-sample-app
 spec:
  selector:
     matchLabels:
-      run: capstone-sample-app
+      app: capstone-sample-app
   replicas: 2
   strategy:
     rollingUpdate:
