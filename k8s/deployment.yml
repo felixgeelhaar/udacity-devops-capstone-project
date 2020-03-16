@@ -4,11 +4,12 @@ metadata:
   name: capstone-sample-app
   labels:
     app: capstone-sample-app
+  namespace: default
 spec:
- selector:
+  replicas: 1
+  selector:
     matchLabels:
       app: capstone-sample-app
-  replicas: 2
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -17,13 +18,14 @@ spec:
   template:
     metadata:
       labels:
-        run: capstone-sample-app
+        app: capstone-sample-app
     spec:
       containers:
-        - name: capstone-sample-app
-          image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
+        - image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
           imagePullPolicy: Always
+          name: capstone-sample-app
           ports:
             - containerPort: 80
+              protocol: TCP
       imagePullSecrets:
         - name: ecr-secret
