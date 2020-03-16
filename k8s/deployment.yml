@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: capstone-sample-app
-  labels:
-    app: capstone-sample-app
-  namespace: default
 spec:
-  replicas: 3
+ selector:
+    matchLabels:
+      run: capstone-sample-app
+  replicas: 2
   selector:
     matchLabels:
       app: capstone-sample-app
@@ -18,22 +18,13 @@ spec:
   template:
     metadata:
       labels:
-        app: capstone-sample-app
+        run: capstone-sample-app
     spec:
-      hostNetwork: true
       containers:
-        - image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
+        - name: capstone-sample-app
+          image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
           imagePullPolicy: Always
-          name: capstone-sample-app
           ports:
             - containerPort: 80
-              protocol: TCP
-          resources:
-            requests:
-              memory: "100Mi"
-              cpu: "100m"
-            limits:
-              memory: "200Mi"
-              cpu: "500m"
       imagePullSecrets:
         - name: ecr-secret
