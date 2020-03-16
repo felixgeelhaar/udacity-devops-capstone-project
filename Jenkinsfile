@@ -3,11 +3,11 @@ pipeline {
   environment {
         VERSION = 'latest'
         PROJECT = 'capstone-sample-app'
-	IMAGE = "$PROJECT:$VERSION"
-	ECRURI = "251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
-	ECRURL = "https://251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
-        ECRCRED = 'ecr:us-west-2:jenkins'
-	EKSURL = "https://5E5C37AC2DCB30CD169691785476A132.gr7.us-west-2.eks.amazonaws.com"
+				IMAGE = "$PROJECT:$VERSION"
+				ECRURI = "251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
+				ECRURL = "https://251557857946.dkr.ecr.us-west-2.amazonaws.com/$PROJECT"
+				ECRCRED = 'ecr:us-west-2:jenkins'
+				EKSURL = "https://5E5C37AC2DCB30CD169691785476A132.gr7.us-west-2.eks.amazonaws.com"
   }
 	stages {
 		stage("Lint Dockerfile") {
@@ -51,9 +51,8 @@ pipeline {
       steps {
 	  withAWS(credentials: 'jenkins', region: 'us-west-2') {
 	    sh "aws eks --region us-west-2 update-kubeconfig --name UdacityCapStone-K8S"
-	    // sh "kubectl apply -f aws/aws-auth-cm.yaml"
 	    sh "kubectl apply -f k8s"
-	    sh "kubectl set image deployments/$PROJECT capstone-sample-app=$ECRURI:$VERSION"
+			sh "kubectl rolling-update $PROJECT $PROJECT-$VERSION --image=$ECRURI:$VERSION"
 	    sh "kubectl get nodes"
 	    sh "kubectl get pods"
 	  }
