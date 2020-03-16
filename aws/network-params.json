@@ -1,26 +1,22 @@
 [
 	{
-		"ParameterKey": "EnvironmentName",
+		"ParameterKey": "StackName",
 		"ParameterValue": "UdacityCapStone"
 	},
 	{
-		"ParameterKey": "VPCCidr",
-		"ParameterValue": "10.0.0.0/16"
+		"ParameterKey": "VpcBlock",
+		"ParameterValue": "192.168.0.0/16"
 	},
 	{
-		"ParameterKey": "PublicSubnet1Block",
-		"ParameterValue": "10.0.0.0/24"
+		"ParameterKey": "Subnet01Block",
+		"ParameterValue": "192.168.64.0/18"
 	},
 	{
-		"ParameterKey": "PublicSubnet2Block",
-		"ParameterValue": "10.0.1.0/24"
+		"ParameterKey": "Subnet02Block",
+		"ParameterValue": "192.168.128.0/18"
 	},
 	{
-		"ParameterKey": "PrivateSubnet1Block",
-		"ParameterValue": "10.0.2.0/24"
-	},
-	{
-		"ParameterKey": "PrivateSubnet2Block",
-		"ParameterValue": "10.0.3.0/24"
+		"ParameterKey": "Subnet03Block",
+		"ParameterValue": "192.168.192.0/18"
 	}
 ]

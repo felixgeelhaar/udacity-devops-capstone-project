@@ -3,35 +3,29 @@ Description: >
   This template defines the VPC and Subnets
 
 Parameters:
-  VPCCidr:
+  StackName:
     Type: String
-    Default: 10.0.0.0/16
-    Description: The CIDR range for the VPC.
+    Description: The name of the Stack.
 
-  PublicSubnet1Block:
+  VpcBlock:
     Type: String
-    Default: 10.0.0.0/24
-    Description: CidrBlock for public subnet1 within the VPC
+    Default: 192.168.0.0/16
+    Description: The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range.
 
-  PublicSubnet2Block:
+  Subnet01Block:
     Type: String
-    Default: 10.0.1.0/24
-    Description: CidrBlock for public subnet2 within the VPC
+    Default: 192.168.64.0/18
+    Description: CidrBlock for subnet 01 within the VPC
 
-  PrivateSubnet1Block:
+  Subnet02Block:
     Type: String
-    Default: 10.0.2.0/24
-    Description: CidrBlock for private subnet1 within the VPC
+    Default: 192.168.128.0/18
+    Description: CidrBlock for subnet 02 within the VPC
 
-  PrivateSubnet2Block:
+  Subnet03Block:
     Type: String
-    Default: 10.0.3.0/24
-    Description: CidrBlock for private subnet2 within the VPC
-
-  EnvironmentName:
-    Description: The name of the Cloudformation Stack
-    Type: String
-    Default: "UdacityCapStone"
+    Default: 192.168.192.0/18
+    Description: CidrBlock for subnet 03 within the VPC
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -39,22 +33,21 @@ Metadata:
       - Label:
           default: "Worker Network Configuration"
         Parameters:
-          - VPC
-          - PublicSubnet1Block
-          - PublicSubnet2Block
-          - PrivateSubnet1Block
-          - PrivateSubnet2Block
+          - VpcBlock
+          - Subnet01Block
+          - Subnet02Block
+          - Subnet03Block
 
 Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VPCCidr
+      CidrBlock: !Ref VpcBlock
       EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName}-VPC"
+          Value: !Sub "${AWS::StackName}-VPC"
 
   InternetGateway:
     Type: "AWS::EC2::InternetGateway"
@@ -65,7 +58,7 @@ Resources:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
 
-  PublicRouteTable:
+  RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
@@ -75,98 +68,18 @@ Resources:
         - Key: Network
           Value: Public
 
-  PrivateRouteTable1:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: Private Subnet AZ1
-        - Key: Network
-          Value: Private1
-
-  PrivateRouteTable2:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: Private Subnet AZ2
-        - Key: Network
-          Value: Private2
-
-  PublicRoute:
+  Route:
     DependsOn: VPCGatewayAttachment
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref PublicRouteTable
+      RouteTableId: !Ref RouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
-  PrivateRoute1:
-    DependsOn:
-      - VPCGatewayAttachment
-      - NatGateway1
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable1
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway1
-
-  PrivateRoute2:
-    DependsOn:
-      - VPCGatewayAttachment
-      - NatGateway2
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable2
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway2
-
-  NatGateway1:
-    DependsOn:
-      - NatGatewayEIP1
-      - PublicSubnet1
-      - VPCGatewayAttachment
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt "NatGatewayEIP1.AllocationId"
-      SubnetId: !Ref PublicSubnet1
-      Tags:
-        - Key: Name
-          Value: !Sub "${EnvironmentName}-NatGatewayAZ1"
-
-  NatGateway2:
-    DependsOn:
-      - NatGatewayEIP2
-      - PublicSubnet2
-      - VPCGatewayAttachment
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt "NatGatewayEIP2.AllocationId"
-      SubnetId: !Ref PublicSubnet2
-      Tags:
-        - Key: Name
-          Value: !Sub "${EnvironmentName}-NatGatewayAZ2"
-
-  NatGatewayEIP1:
-    DependsOn:
-      - VPCGatewayAttachment
-    Type: "AWS::EC2::EIP"
-    Properties:
-      Domain: vpc
-
-  NatGatewayEIP2:
-    DependsOn:
-      - VPCGatewayAttachment
-    Type: "AWS::EC2::EIP"
-    Properties:
-      Domain: vpc
-
-  PublicSubnet1:
+  Subnet01:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet1
+      Comment: Subnet 01
     Properties:
       AvailabilityZone:
         Fn::Select:
@@ -174,19 +87,17 @@ Resources:
           - Fn::GetAZs:
               Ref: AWS::Region
       CidrBlock:
-        Ref: PublicSubnet1Block
+        Ref: Subnet01Block
       VpcId:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName}-PublicSubnet1"
-        - Key: kubernetes.io/role/elb
-          Value: 1
+          Value: !Sub "${AWS::StackName}-Subnet01"
 
-  PublicSubnet2:
+  Subnet02:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet2
+      Comment: Subnet 02
     Properties:
       AvailabilityZone:
         Fn::Select:
@@ -194,78 +105,48 @@ Resources:
           - Fn::GetAZs:
               Ref: AWS::Region
       CidrBlock:
-        Ref: PublicSubnet2Block
+        Ref: Subnet02Block
       VpcId:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName}-PublicSubnet2"
-        - Key: kubernetes.io/role/elb
-          Value: 1
+          Value: !Sub "${AWS::StackName}-Subnet02"
 
-  PrivateSubnet1:
+  Subnet03:
     Type: AWS::EC2::Subnet
     Metadata:
-      Comment: Subnet3
+      Comment: Subnet 03
     Properties:
       AvailabilityZone:
         Fn::Select:
-          - "0"
+          - "2"
           - Fn::GetAZs:
               Ref: AWS::Region
       CidrBlock:
-        Ref: PrivateSubnet1Block
+        Ref: Subnet03Block
       VpcId:
         Ref: VPC
       Tags:
         - Key: Name
-          Value: !Sub "${EnvironmentName}-PrivateSubnet1"
-        - Key: kubernetes.io/role/internal-elb
-          Value: 1
+          Value: !Sub "${AWS::StackName}-Subnet03"
 
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Metadata:
-      Comment: Private Subnet2
-    Properties:
-      AvailabilityZone:
-        Fn::Select:
-          - "1"
-          - Fn::GetAZs:
-              Ref: AWS::Region
-      CidrBlock:
-        Ref: PrivateSubnet2Block
-      VpcId:
-        Ref: VPC
-      Tags:
-        - Key: Name
-          Value: !Sub "${EnvironmentName}-PrivateSubnet2"
-        - Key: kubernetes.io/role/internal-elb
-          Value: 1
-
-  PublicSubnet1RouteTableAssociation:
+  Subnet01RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PublicSubnet1
-      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref Subnet01
+      RouteTableId: !Ref RouteTable
 
-  PublicSubnet2RouteTableAssociation:
+  Subnet02RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PublicSubnet2
-      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref Subnet02
+      RouteTableId: !Ref RouteTable
 
-  PrivateSubnet1RouteTableAssociation:
+  Subnet03RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnet1
-      RouteTableId: !Ref PrivateRouteTable1
-
-  PrivateSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PrivateSubnet2
-      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref Subnet03
+      RouteTableId: !Ref RouteTable
 
   ControlPlaneSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -275,28 +156,19 @@ Resources:
 
 Outputs:
   SubnetIds:
-    Description: Subnets IDs in the VPC
-    Value:
-      !Join [
-        ",",
-        [
-          !Ref PublicSubnet1,
-          !Ref PublicSubnet2,
-          !Ref PrivateSubnet1,
-          !Ref PrivateSubnet2,
-        ],
-      ]
+    Description: All subnets in the VPC
+    Value: !Join [",", [!Ref Subnet01, !Ref Subnet02, !Ref Subnet03]]
     Export:
-      Name: !Sub "${EnvironmentName}-Subnets"
+      Name: !Sub "${StackName}-Subnets"
 
   SecurityGroups:
     Description: Security group for the cluster control plane communication with worker nodes
     Value: !Join [",", [!Ref ControlPlaneSecurityGroup]]
     Export:
-      Name: !Sub "${EnvironmentName}-SecurityGroups"
+      Name: !Sub "${StackName}-SecurityGroups"
 
   VpcId:
     Description: The VPC Id
     Value: !Ref VPC
     Export:
-      Name: !Sub "${EnvironmentName}-VPCID"
+      Name: !Sub "${StackName}-VPCID"

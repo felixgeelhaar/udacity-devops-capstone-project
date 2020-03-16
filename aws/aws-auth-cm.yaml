@@ -10,7 +10,7 @@ data:
       groups:
         - system:masters
   mapRoles: |
-    - rolearn: arn:aws:iam::251557857946:role/UdacityCapStone-K8S-Workers-NodeInstanceRole-3YY0OQBKTWDB
+    - rolearn: arn:aws:iam::251557857946:role/UdacityCapStone-Cluster-Worker-NodeInstanceRole-1KQJ6DCMC7B6D
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers

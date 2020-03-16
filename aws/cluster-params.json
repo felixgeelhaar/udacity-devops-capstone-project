@@ -1,0 +1,18 @@
+[
+	{
+		"ParameterKey": "StackName",
+		"ParameterValue": "UdacityCapStone"
+	},
+	{
+		"ParameterKey": "Subnets",
+		"ParameterValue": "subnet-001de7c0ee49c79ff,subnet-0de75cdf09dbf3d0f,subnet-08b04681e7d90a4de"
+	},
+	{
+		"ParameterKey": "SecurityGroup",
+		"ParameterValue": "sg-00e185b73cb078fa0"
+	},
+	{
+		"ParameterKey": "ClusterName",
+		"ParameterValue": "UdacityCapStone-Cluster"
+	}
+]
