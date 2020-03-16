@@ -20,6 +20,7 @@ spec:
       labels:
         app: capstone-sample-app
     spec:
+      hostNetwork: true
       containers:
         - image: 251557857946.dkr.ecr.us-west-2.amazonaws.com/capstone-sample-app:latest
           imagePullPolicy: Always
